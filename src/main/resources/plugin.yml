@@ -1,0 +1,4 @@
+name: Dynamic_Graph
+version: '${version}'
+main: nekonic.Dynamic_Graph
+api-version: '1.21.1'

@@ -1,6 +1,6 @@
 name: Dynamic_Graph
 version: '${version}'
-main: nekonic.Dynamic_Graph
+main: nekonic.DynamicGraphPlugin
 api-version: '1.21.1'
 commands:
   graph:

@@ -44,14 +44,19 @@ public class DynamicGraphPlugin extends JavaPlugin implements Listener {
     private void openGraphGUI(Player player) {
         Inventory inventory = Bukkit.createInventory(null, 54, "§f궯샮");
 
-        int model_data[] = {101,102,111,112,113,114,115,121,122,123,124,125};
-        int init_pos[] = {
-                0, 1, 2, 3, 4, 5, 6,
-                9,10,11,12,13,14,15,
-                18,19,20,21,22,23,24,
-                27,28,29,30,31,32,33
+        int model_data[] = {101,102,103,104,105,106,
+                111,112,113,114,115,116,117,118,119,120,
+                201,202,203,204,205,206,207,208,209,210
         };
-        for(int i=0; i<12; i++){
+        int init_pos[] = {
+                 0, 1, 2, 3, 4, 5, 6,
+                 9,10,11,12,13,14,15,
+                18,19,20,21,22,23,24,
+                27,28,29,30,31,32,33,
+                34,35,36,37,38,39,40,
+        };
+        int data_len = model_data.length;
+        for(int i=0; i<data_len; i++){
             // Create a custom item to represent the graph
             ItemStack graphItem = Create_GUI_Item.createItem(model_data[i]);
 

@@ -32,7 +32,9 @@ processResources {
 
 jar {
     archiveFileName = 'Dynamic_Graph.jar'
-    destinationDirectory = file("D:\\1\\java\\server\\plugins")//server plugin directory
+    if (!System.getenv("CI")) { // GitHub Actions 환경이 아닐 경우에만 적용
+        destinationDirectory = file("D:\\1\\java\\server\\plugins")
+    }
 }
 
 tasks.withType(JavaCompile){

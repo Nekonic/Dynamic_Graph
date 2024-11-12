@@ -13,12 +13,10 @@ repositories {
 
 dependencies {
     compileOnly 'io.papermc.paper:paper-api:1.21.1-R0.1-SNAPSHOT'
-    implementation 'org.xerial:sqlite-jdbc:3.34.0' // SQLite
-    implementation 'com.google.code.gson:gson:2.8.9' // JSON
 }
 
 java {
-    toolchain.languageVersion.set(JavaLanguageVersion.of(22))
+    toolchain.languageVersion.set(JavaLanguageVersion.of(21))
 }
 
 processResources {

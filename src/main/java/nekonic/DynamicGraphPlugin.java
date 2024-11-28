@@ -86,12 +86,40 @@ public class DynamicGraphPlugin extends JavaPlugin implements Listener {
         }
     }
 
+    private static final Map<String, Integer> graphModelData = new HashMap<>() {{
+        put("BasicGraph_01", 101);
+        put("BasicGraph_02", 102);
+        put("BasicGraph_03", 103);
+        put("BasicGraph_04", 104);
+        put("DetailGraph_Low", 105);
+        put("DetailGraph_High", 106);
+        put("BlueGraph_1", 111);
+        put("BlueGraph_2", 112);
+        put("BlueGraph_3", 113);
+        put("BlueGraph_4", 114);
+        put("BlueGraph_5", 115);
+        put("BlueGraph_6", 116);
+        put("BlueGraph_7", 117);
+        put("BlueGraph_8", 118);
+        put("BlueGraph_9", 119);
+        put("BlueGraph_10", 120);
+        put("RedGraph_1", 201);
+        put("RedGraph_2", 202);
+        put("RedGraph_3", 203);
+        put("RedGraph_4", 204);
+        put("RedGraph_5", 205);
+        put("RedGraph_6", 206);
+        put("RedGraph_7", 207);
+        put("RedGraph_8", 208);
+        put("RedGraph_9", 209);
+        put("RedGraph_10", 210);
+    }};
+
     private void updateGraph(Player player, Inventory inventory) {
         if (inventory == null) return;
 
-        int[] modelData = {101,102,103,104,105,106,
-                111,112,113,114,115,116,117,118,119,120,
-                201,202,203,204,205,206,207,208,209,210};
+        String[] graphNames = graphModelData.keySet().toArray(new String[0]);
+
         int[] initPos = {
                 0, 1, 2, 3, 4, 5, 6,
                 9,10,11,12,13,14,15,
@@ -100,9 +128,10 @@ public class DynamicGraphPlugin extends JavaPlugin implements Listener {
                 34,35,36,37,38,39,40,
         };
 
-        for (int i = 0; i < modelData.length; i++) {
-            int randomModelData = modelData[random.nextInt(modelData.length)];
-            ItemStack graphItem = Create_GUI_Item.createItem(randomModelData);
+        for (int i = 0; i < initPos.length; i++) {
+            String randomGraphName = graphNames[random.nextInt(graphNames.length)];
+            int customModelData = graphModelData.get(randomGraphName);
+            ItemStack graphItem = Create_GUI_Item.createItem(customModelData);
             inventory.setItem(initPos[i], graphItem);
         }
     }

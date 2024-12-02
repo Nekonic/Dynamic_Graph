@@ -1,6 +1,8 @@
 package nekonic;
 
 import nekonic.utils.Create_GUI_Item;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -29,7 +31,9 @@ public class DynamicGraphPlugin extends JavaPlugin implements Listener {
 
     @Override
     public void onEnable() {
-        getLogger().info(ChatColor.YELLOW + "GraphPlugin has been enabled!");
+        getServer().getConsoleSender().sendMessage(
+                Component.text("GraphPlugin has been enabled!", NamedTextColor.DARK_AQUA)
+        );
     }
 
     @Override
@@ -37,7 +41,9 @@ public class DynamicGraphPlugin extends JavaPlugin implements Listener {
         for (BukkitTask task : updateTasks.values()) {
             task.cancel();
         }
-        getLogger().info(ChatColor.YELLOW + "GraphPlugin has been disabled!");
+        getServer().getConsoleSender().sendMessage(
+                Component.text("GraphPlugin has been disabled!", NamedTextColor.DARK_AQUA)
+        );
     }
 
     @Override

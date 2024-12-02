@@ -27,7 +27,6 @@ import java.util.Random;
 public class DynamicGraphPlugin extends JavaPlugin implements Listener {
 
     private Map<Player, BukkitTask> updateTasks = new HashMap<>();
-    private Random random = new Random();
 
     @Override
     public void onEnable() {
@@ -83,7 +82,7 @@ public class DynamicGraphPlugin extends JavaPlugin implements Listener {
 
     @EventHandler
     public void onInventoryClose(InventoryCloseEvent event) {
-        if (event.getView().getTitle().equals("Dynamic Graph")) {
+        if (event.getView().getTitle().equals("§f궯샮")) {
             Player player = (Player) event.getPlayer();
             BukkitTask task = updateTasks.remove(player);
             if (task != null) {
@@ -92,53 +91,30 @@ public class DynamicGraphPlugin extends JavaPlugin implements Listener {
         }
     }
 
-    private static final Map<String, Integer> graphModelData = new HashMap<>() {{
-        put("BasicGraph_01", 101);
-        put("BasicGraph_02", 102);
-        put("BasicGraph_03", 103);
-        put("BasicGraph_04", 104);
-        put("DetailGraph_Low", 105);
-        put("DetailGraph_High", 106);
-        put("BlueGraph_1", 111);
-        put("BlueGraph_2", 112);
-        put("BlueGraph_3", 113);
-        put("BlueGraph_4", 114);
-        put("BlueGraph_5", 115);
-        put("BlueGraph_6", 116);
-        put("BlueGraph_7", 117);
-        put("BlueGraph_8", 118);
-        put("BlueGraph_9", 119);
-        put("BlueGraph_10", 120);
-        put("RedGraph_1", 201);
-        put("RedGraph_2", 202);
-        put("RedGraph_3", 203);
-        put("RedGraph_4", 204);
-        put("RedGraph_5", 205);
-        put("RedGraph_6", 206);
-        put("RedGraph_7", 207);
-        put("RedGraph_8", 208);
-        put("RedGraph_9", 209);
-        put("RedGraph_10", 210);
-    }};
-
     private void updateGraph(Player player, Inventory inventory) {
         if (inventory == null) return;
 
-        String[] graphNames = graphModelData.keySet().toArray(new String[0]);
+        int[] modelDataList = {
+                101, 102, 103, 104, 105, 106, 107, 108, 109, 110
+        };
 
         int[] initPos = {
                 0, 1, 2, 3, 4, 5, 6,
                 9,10,11,12,13,14,15,
                 18,19,20,21,22,23,24,
                 27,28,29,30,31,32,33,
-                34,35,36,37,38,39,40,
+                36,37,38,39,40,41,42
         };
 
-        for (int i = 0; i < initPos.length; i++) {
-            String randomGraphName = graphNames[random.nextInt(graphNames.length)];
-            int customModelData = graphModelData.get(randomGraphName);
-            ItemStack graphItem = Create_GUI_Item.createItem(customModelData);
-            inventory.setItem(initPos[i], graphItem);
+        for (int i : initPos) {
+            // 랜덤하게 모델 데이터 선택
+            int randomModelData = modelDataList[(int)(Math.random() * modelDataList.length)];
+
+            boolean isIncrease = Math.random() > 0.5; // 예시로 랜덤하게 상승/하락을 결정
+
+            // 그래프 아이템 생성
+            ItemStack graphItem = Create_GUI_Item.createItem(randomModelData, isIncrease);
+            inventory.setItem(i, graphItem);
         }
     }
 }

@@ -5,6 +5,7 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -17,12 +18,16 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class DynamicGraphPlugin extends JavaPlugin implements Listener {
 
     private Map<Player, BukkitTask> updateTasks = new HashMap<>();
+    private List<Integer> memoryData = new ArrayList<>();
+    private static final int DATA_POINTS = 7; // 7개의 데이터 포인트
 
     @Override
     public void onEnable() {
@@ -56,21 +61,48 @@ public class DynamicGraphPlugin extends JavaPlugin implements Listener {
         return false;
     }
 
+    private void initializeMemoryData() {
+        memoryData.clear();
+        for (int i = 0; i < DATA_POINTS; i++) {
+            memoryData.add(getCurrentMemoryUsage());
+        }
+    }
+
+    private int getCurrentMemoryUsage() {
+        long totalMemory = Runtime.getRuntime().totalMemory();
+        long freeMemory = Runtime.getRuntime().freeMemory();
+        return (int) ((totalMemory - freeMemory) / (1024 * 1024)); // MB 단위로 변환
+    }
+
+    private void updateMemoryData() {
+        memoryData.removeFirst();
+        memoryData.add(getCurrentMemoryUsage()); // 새로운 데이터 추가
+        for (int i : memoryData){
+            getServer().getConsoleSender().sendMessage(
+                    Component.text(i, NamedTextColor.AQUA)
+            );
+        }
+    }
+
+
+
     private void openGraphGUI(Player player) {
         Inventory inventory = Bukkit.createInventory(null, 54, "§f궯샮");
+
+        initializeMemoryData(); // 초기 데이터 설정
+        Create_GUI_Item.initGUIItem();
+
         player.openInventory(inventory);
         // 인벤토리 업데이트 작업 시작
         BukkitTask task = new BukkitRunnable() {
             @Override
             public void run() {
-                if (player.getOpenInventory().getTitle().equals("§f궯샮")) {
-                    updateGraph(player,inventory);
-                } else {
+                if (!player.getOpenInventory().getTitle().equals("§f궯샮")) {
                     this.cancel(); // 인벤토리가 닫혔거나 다른 인벤토리가 열렸다면 작업 중지
                     updateTasks.remove(player);
-                }
+                }updateGraph(player,inventory);
             }
-        }.runTaskTimer(this, 0L, 200000000L); // 1초마다 실행
+        }.runTaskTimer(this, 0L, 20L); // 1초마다 실행
 
         updateTasks.put(player, task);
 
@@ -89,6 +121,11 @@ public class DynamicGraphPlugin extends JavaPlugin implements Listener {
 
     private void updateGraph(Player player, Inventory inventory) {
         if (inventory == null) return;
+        updateMemoryData();
+
+        getServer().getConsoleSender().sendMessage(
+                Component.text("memoryData : ", NamedTextColor.RED)
+        );
 
         int[] modelDataList = {
                 100,
@@ -114,31 +151,9 @@ public class DynamicGraphPlugin extends JavaPlugin implements Listener {
                 {36, 37, 38, 39, 40, 41, 42}
         };
 
-        int[] data = {100, 112, 44, 56, 77, 98, 103}; // test Data
 
-        int[][] grid = drowGraph(data);
-
-        boolean isIncrease = data[0]<data[6];
-
-        /* test
-        int[] bitModelData = {
-                0b0000,
-                0b0001,
-                0b0010,
-                0b0011,
-                0b0100,
-                0b0101,
-                0b0110,
-                0b0111,
-                0b1000,
-                0b1001,
-                0b1010,
-                0b1100,
-                0b1101,
-                0b1110,
-                0b1111
-        };*/
-
+        int[][] grid = drowGraph(memoryData.stream().mapToInt(Integer::intValue).toArray());
+        boolean isIncrease = memoryData.getFirst()<memoryData.getLast();
 
         for (int i=0; i<5; i++) {
             for(int j=0; j<7; j++){
@@ -147,8 +162,11 @@ public class DynamicGraphPlugin extends JavaPlugin implements Listener {
                 modleNum += grid[i*2][j*2+1]<<2;
                 modleNum += grid[i*2+1][j*2]<<1;
                 modleNum += grid[i*2+1][j*2+1];
-                if(modleNum==0)continue;
-                ItemStack graphItem = Create_GUI_Item.createItem(modelDataList[modleNum], isIncrease);
+                if(modleNum==0){
+                    inventory.setItem(initPos[i][j],new ItemStack(Material.AIR));
+                    continue;
+                }
+                ItemStack graphItem = Create_GUI_Item.createGUIItem(modelDataList[modleNum], isIncrease);
                 inventory.setItem(initPos[i][j], graphItem);
             }
         }
@@ -158,7 +176,6 @@ public class DynamicGraphPlugin extends JavaPlugin implements Listener {
 
 
         int[] yData = new int[7];
-        int dataSize = data.length;
 
         // 최소값과 최대값 계산
         int min = data[0];
@@ -181,13 +198,13 @@ public class DynamicGraphPlugin extends JavaPlugin implements Listener {
         }
 
         // x축 위치 계산 (데이터를 2칸마다 배치)
-        int[] xPositions = new int[dataSize];
-        for (int i = 0; i < dataSize; i++) {
+        int[] xPositions = new int[DATA_POINTS];
+        for (int i = 0; i < DATA_POINTS; i++) {
             xPositions[i] = i * 2; // x 위치: 1, 3, 5, ..., 13
         }
 
         // 데이터 포인트를 그리드에 매핑
-        for (int i = 0; i < dataSize; i++) {
+        for (int i = 0; i < DATA_POINTS; i++) {
             int n = data[i];
             // y 좌표 계산: (n - min) / (max - min) * 9 후 반올림
             int y = (int) Math.round(((double)(n - min) / (max - min)) * (height - 1));
